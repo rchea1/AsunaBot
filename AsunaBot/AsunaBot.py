@@ -13,7 +13,7 @@ import config
 import re
 import xml.etree.cElementTree as ET
 
-from animethemes import findAnimeOpening, findAnimeEnding
+from animethemes import findAnimeOpening, findAnimeEnding, randomIrlPost
 
 DESCRIPTION = ''' A discord bot
 
@@ -101,25 +101,45 @@ async def op(*, titlez: str):
         await AsunaBot.say('I couldn\'t find any openings for this anime you potato <:PunOko:370486584153473024>')
         return
 
-    await AsunaBot.say('<:VoHiYo:370487040380239872> Here are the openings for \"' + titlez + '\" <:VoHiYo:370487040380239872>')
+    # Prevent the bot from spamming too many links because of bad requests
+    if(len(openings) > 8):
+        await AsunaBot.say('This request has too many links')
+        return
+
+    await AsunaBot.say('<:VoHiYo:370487040380239872> Here are the opening(s) for \"' + titlez + '\" <:VoHiYo:370487040380239872>')
     for anime in openings:
-        await AsunaBot.say(anime.title)
-        await AsunaBot.say(anime.url)
+        if('reddit' not in anime.url):
+            await AsunaBot.say(anime.title)
+            await AsunaBot.say(anime.url)
 
     await AsunaBot.say('<:TehePelo:370494286707425280> Not what you were looking for? Check the title of the anime and try again! <:TehePelo:370494286707425280>')
 
+# The bot will comment with a mp4 link of an ED from /r/AnimeThemes for a given anime
 @AsunaBot.command()
 async def ed(*, title: str):
     endings = findAnimeEnding(title)
     if(endings == -1):
         await AsunaBot.say('I couldn\'t find any endings for this anime you ape <:PunOko:370486584153473024>')
         return
-    await AsunaBot.say('<:VoHiYo:370487040380239872> Here are the endings for \"' + title + '\" <:VoHiYo:370487040380239872>')
+
+    # Prevent the bot from spamming too many links because of bad requests
+    if(len(openings) > 8):
+        await AsunaBot.say('This request has too many links')
+        return
+
+    await AsunaBot.say('<:VoHiYo:370487040380239872> Here are the ending(s) for \"' + title + '\" <:VoHiYo:370487040380239872>')
     for anime in endings:
-        await AsunaBot.say(anime.title)
-        await AsunaBot.say(anime.url)
+        if('reddit' not in anime.url):
+            await AsunaBot.say(anime.title)
+            await AsunaBot.say(anime.url)
 
     await AsunaBot.say('<:TehePelo:370494286707425280> Not what you were looking for? Check the title of the anime and try again! <:TehePelo:370494286707425280>')
+
+# Retrieves a random post from /r/anime_irl
+@AsunaBot.command()
+async def me_irl():
+    url = randomIrlPost()
+    await AsunaBot.say(url)
 
 # taken from https://github.com/Nihilate/Roboragi/blob/master/roboragi/MAL.py
 def convertXML(text):
