@@ -14,5 +14,7 @@ A discord bot
 
 -!showme[character name]: Returns a random image of this character from https://zerochan.net
 
+-!me_irl: Posts a random image from /r/anime_irl
+
 ## TODO
 -!showme: Needs to implement API for better searching most likely. Maybe make use of a database to store images?
