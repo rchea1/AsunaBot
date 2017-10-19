@@ -4,6 +4,7 @@
 import praw 
 import config
 import re
+import random
 
 def startup():
 	print('Authenticating Reddit...')
@@ -13,6 +14,7 @@ def startup():
 # Finds the opening from /r/AnimeThemes
 # @title is the title of the anime 
 def findAnimeOpening(title):
+	print('Searching for OPs for ' + title)
 	reddit = startup()
 	openings = []
 
@@ -29,6 +31,7 @@ def findAnimeOpening(title):
 # Finds the endings from /r/AnimeThemes
 # @title is the title of the anime 
 def findAnimeEnding(title):
+	print('Searching for EDs for ' + title)
 	reddit = startup()
 	endings = []
 
@@ -41,3 +44,13 @@ def findAnimeEnding(title):
 		return -1
 
 	return list(reversed(endings))
+
+def randomIrlPost():
+	print('Getting random /r/anime_irl post')
+	reddit = startup()
+	array = []
+
+	for submission in reddit.subreddit('anime_irl').hot(limit = 100):
+		array.append(submission.url)
+
+	return(random.choice(array))
