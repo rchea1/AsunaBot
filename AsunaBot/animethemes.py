@@ -45,12 +45,14 @@ def findAnimeEnding(title):
 
 	return list(reversed(endings))
 
-def randomIrlPost():
-	print('Getting random /r/anime_irl post')
+def randomPost(subreddit):
+	print('Getting random post from /r/' + subreddit)
 	reddit = startup()
 	array = []
 
-	for submission in reddit.subreddit('anime_irl').hot(limit = 100):
+	for submission in reddit.subreddit(subreddit).top('all'):
 		array.append(submission.url)
 
 	return(random.choice(array))
+
+	return sub
