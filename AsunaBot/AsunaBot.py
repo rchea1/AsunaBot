@@ -13,7 +13,7 @@ import config
 import re
 import xml.etree.cElementTree as ET
 
-from animethemes import findAnimeOpening, findAnimeEnding, randomIrlPost
+from animethemes import findAnimeOpening, findAnimeEnding, randomPost
 
 DESCRIPTION = ''' A discord bot
 
@@ -21,20 +21,11 @@ Written by: Knotts'''
 
 # logging.basicConfig(level=logging.INFO)
 
-AsunaBot = ''
-
 print('Logging onto AsunaBot...')
-AsunaBot = commands.Bot(command_prefix='!', description=DESCRIPTION)
+AsunaBot = commands.Bot(command_prefix='~', description=DESCRIPTION)
 client = discord.Client()
 print('Setup complete')
 print('-------------------------')
-
-if not discord.opus.is_loaded():
-    discord.opus.load_opus('/mnt/c/Projects/opusfile/libopus.so')
-
-@AsunaBot.command()
-async def feelsbadman(*args):
-    await AsunaBot.say('https://imgur.com/aSVjtu7')
 
 # Posts link to op.gg profile of 'ign'
 @AsunaBot.command()
@@ -60,22 +51,9 @@ async def showme(*, name: str):
     urlArray.pop(index)
     await AsunaBot.say(imageUrl)
 
-# Return MAL link for the anime 'title' by webscraping
-@AsunaBot.command()
-async def mal(*, title: str):
-    url = 'https://myanimelist.net/search/all?q={}'.format(title)
-    r = requests.get(url)
-    soup = BeautifulSoup(r.content, 'html.parser')
-    pattern = re.compile(r'\s+')
-    title = (re.sub(pattern, '_', title))
-    for link in soup.find_all('a'):
-        if re.search(r'\/anime\/(\d*)\/' + title + '(?![\/_])', str(link.get('href')), re.IGNORECASE):
-            await AsunaBot.say(link.get('href'))
-            return
-
 # Return MAL link for the anime 'title' using myanimelist.net's api
 @AsunaBot.command()
-async def mal2(*, title: str):
+async def mal(*, title: str):
     url = 'https://myanimelist.net/anime/'
     pattern = re.compile(r'\s+')
     title = re.sub(pattern, '+', title)
@@ -123,7 +101,7 @@ async def ed(*, title: str):
         return
 
     # Prevent the bot from spamming too many links because of bad requests
-    if(len(openings) > 8):
+    if(len(endings) > 8):
         await AsunaBot.say('This request has too many links')
         return
 
@@ -138,8 +116,20 @@ async def ed(*, title: str):
 # Retrieves a random post from /r/anime_irl
 @AsunaBot.command()
 async def me_irl():
-    url = randomIrlPost()
+    url = randomPost('anime_irl')
     await AsunaBot.say(url)
+
+# Retrieves a random post from /r/awwnime
+@AsunaBot.command()
+async def cute():
+    url = randomPost('awwnime')
+    await AsunaBot.say(url)
+
+@AsunaBot.command()
+async def lewd():
+    url = randomPost('ZettaiRyouiki+pantsu')
+    await AsunaBot.say(url)
+
 
 # taken from https://github.com/Nihilate/Roboragi/blob/master/roboragi/MAL.py
 def convertXML(text):
