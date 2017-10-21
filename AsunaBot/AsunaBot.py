@@ -17,25 +17,41 @@ from animethemes import findAnimeOpening, findAnimeEnding, randomPost
 
 DESCRIPTION = ''' A discord bot
 
+
 Written by: Knotts'''
+
+startup_extensions = ['Music']
 
 # logging.basicConfig(level=logging.INFO)
 
-print('Logging onto AsunaBot...')
-AsunaBot = commands.Bot(command_prefix='~', description=DESCRIPTION)
+print('Logging onto bot...')
+bot = commands.Bot(command_prefix='~', description=DESCRIPTION)
+bot.load_extension('Music')
 client = discord.Client()
 print('Setup complete')
 print('-------------------------')
 
+if __name__ == '__main__':
+    for extension in startup_extensions:
+        try:
+            bot.load_extension(extension)
+        except Exception as e:
+            exc = '{}: {}'.format(type(e).__name__, e)
+            print('Failed to load extension {}\n{}'.format(extension, exc))
+
+class Main_Commands():
+    def __init__(self, bot):
+        self.bot = bot
+
 # Posts link to op.gg profile of 'ign'
-@AsunaBot.command()
+@bot.command()
 async def opgg(*, ign: str):
     pattern = re.compile(r'\s+')
     ign = re.sub(pattern, '+', ign)
-    await AsunaBot.say('http://na.op.gg/summoner/userName={}'.format(ign))
+    await bot.say('http://na.op.gg/summoner/userName={}'.format(ign))
 
 # Posts a random image of 'name' from zerochan.net
-@AsunaBot.command()
+@bot.command()
 async def showme(*, name: str):
     urlArray = []
     pattern = re.compile(r'\s+')
@@ -49,10 +65,10 @@ async def showme(*, name: str):
     index = randrange(0, len(urlArray))
     imageUrl = urlArray[index]
     urlArray.pop(index)
-    await AsunaBot.say(imageUrl)
+    await bot.say(imageUrl)
 
 # Return MAL link for the anime 'title' using myanimelist.net's api
-@AsunaBot.command()
+@bot.command()
 async def mal(*, title: str):
     url = 'https://myanimelist.net/anime/'
     pattern = re.compile(r'\s+')
@@ -68,67 +84,67 @@ async def mal(*, title: str):
     title = re.sub(pattern, '_', title)
     url += animeId + '/' + title
 
-    await AsunaBot.say(url)
+    await bot.say(url)
 
 # The bot will comment with a mp4 link of an OP from /r/AnimeThemes for a given anime
-@AsunaBot.command()
+@bot.command()
 async def op(*, titlez: str):
     openings = findAnimeOpening(titlez)
     # Most likely an invalid anime title
     if(openings == -1): 
-        await AsunaBot.say('I couldn\'t find any openings for this anime you potato <:PunOko:370486584153473024>')
+        await bot.say('I couldn\'t find any openings for this anime you potato <:PunOko:370486584153473024>')
         return
 
     # Prevent the bot from spamming too many links because of bad requests
     if(len(openings) > 8):
-        await AsunaBot.say('This request has too many links')
+        await bot.say('This request has too many links')
         return
 
-    await AsunaBot.say('<:VoHiYo:370487040380239872> Here are the opening(s) for \"' + titlez + '\" <:VoHiYo:370487040380239872>')
+    await bot.say('<:VoHiYo:370487040380239872> Here are the opening(s) for \"' + titlez + '\" <:VoHiYo:370487040380239872>')
     for anime in openings:
         if('reddit' not in anime.url):
-            await AsunaBot.say(anime.title)
-            await AsunaBot.say(anime.url)
+            await bot.say(anime.title)
+            await bot.say(anime.url)
 
-    await AsunaBot.say('<:TehePelo:370494286707425280> Not what you were looking for? Check the title of the anime and try again! <:TehePelo:370494286707425280>')
+    await bot.say('<:TehePelo:370494286707425280> Not what you were looking for? Check the title of the anime and try again! <:TehePelo:370494286707425280>')
 
 # The bot will comment with a mp4 link of an ED from /r/AnimeThemes for a given anime
-@AsunaBot.command()
+@bot.command()
 async def ed(*, title: str):
     endings = findAnimeEnding(title)
     if(endings == -1):
-        await AsunaBot.say('I couldn\'t find any endings for this anime you ape <:PunOko:370486584153473024>')
+        await bot.say('I couldn\'t find any endings for this anime you ape <:PunOko:370486584153473024>')
         return
 
     # Prevent the bot from spamming too many links because of bad requests
     if(len(endings) > 8):
-        await AsunaBot.say('This request has too many links')
+        await bot.say('This request has too many links')
         return
 
-    await AsunaBot.say('<:VoHiYo:370487040380239872> Here are the ending(s) for \"' + title + '\" <:VoHiYo:370487040380239872>')
+    await bot.say('<:VoHiYo:370487040380239872> Here are the ending(s) for \"' + title + '\" <:VoHiYo:370487040380239872>')
     for anime in endings:
         if('reddit' not in anime.url):
-            await AsunaBot.say(anime.title)
-            await AsunaBot.say(anime.url)
+            await bot.say(anime.title)
+            await bot.say(anime.url)
 
-    await AsunaBot.say('<:TehePelo:370494286707425280> Not what you were looking for? Check the title of the anime and try again! <:TehePelo:370494286707425280>')
+    await bot.say('<:TehePelo:370494286707425280> Not what you were looking for? Check the title of the anime and try again! <:TehePelo:370494286707425280>')
 
 # Retrieves a random post from /r/anime_irl
-@AsunaBot.command()
+@bot.command()
 async def me_irl():
     url = randomPost('anime_irl')
-    await AsunaBot.say(url)
+    await bot.say(url)
 
 # Retrieves a random post from /r/awwnime
-@AsunaBot.command()
+@bot.command()
 async def cute():
     url = randomPost('awwnime')
-    await AsunaBot.say(url)
+    await bot.say(url)
 
-@AsunaBot.command()
+@bot.command()
 async def lewd():
     url = randomPost('ZettaiRyouiki+pantsu')
-    await AsunaBot.say(url)
+    await bot.say(url)
 
 
 # taken from https://github.com/Nihilate/Roboragi/blob/master/roboragi/MAL.py
@@ -144,4 +160,4 @@ def convertXML(text):
     text=html.parser.HTMLParser().unescape(text)
     return html.parser.HTMLParser().unescape(text)
   
-AsunaBot.run(config.token)
+bot.run(config.token)
