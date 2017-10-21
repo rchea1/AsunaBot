@@ -14,7 +14,7 @@ def startup():
 # Finds the opening from /r/AnimeThemes
 # @title is the title of the anime 
 def findAnimeOpening(title):
-	print('Searching for OPs for ' + title)
+	print('Searching OPs for ' + title)
 	reddit = startup()
 	openings = []
 
@@ -31,7 +31,7 @@ def findAnimeOpening(title):
 # Finds the endings from /r/AnimeThemes
 # @title is the title of the anime 
 def findAnimeEnding(title):
-	print('Searching for EDs for ' + title)
+	print('Searching EDs for ' + title)
 	reddit = startup()
 	endings = []
 
