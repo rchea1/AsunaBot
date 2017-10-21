@@ -21,6 +21,14 @@ def findAnimeOpening(title):
 	for submission in reddit.subreddit('animethemes').search(title, 'new'):
 		if submission.link_flair_text == 'Added to wiki' and 'OP' in submission.title:
 			openings.append(submission)
+		else: 
+			if submission.link_flair_text == 'Mirror in Comments' and 'OP' in submission.title:
+				for comment in submission.comments.list():
+					if('https' in comment.body):
+						url = comment.body.split('Mirror: ')[1]
+						submission.url = url
+						openings.append(submission)
+						break
 
 	if not openings:
 		print('Could not find any openings for this anime')
@@ -38,9 +46,18 @@ def findAnimeEnding(title):
 	for submission in reddit.subreddit('animethemes').search(title, 'new'):
 		if submission.link_flair_text == 'Added to wiki' and 'ED' in submission.title:
 			endings.append(submission)
+		else: 
+			if submission.link_flair_text == 'Mirror in Comments' and 'ED' in submission.title:
+				for comment in submission.comments.list():
+					if('https' in comment.body):
+						url = comment.body.split('Mirror: ')[1]
+						print(url)
+						submission.url = url
+						endings.append(submission)
+						break
 
 	if not endings:
-		print('Could not find any openings for this anime')
+		print('Could not find any endings for this anime')
 		return -1
 
 	return list(reversed(endings))
