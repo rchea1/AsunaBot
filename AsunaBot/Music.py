@@ -1,7 +1,7 @@
 import asyncio
 import discord
 import config
-from animethemes import findAnimeOpening
+from animethemes import findAnimeOpening, findAnimeEnding
 from discord.ext import commands
 
 if not discord.opus.is_loaded():
@@ -118,26 +118,42 @@ class Music:
         return True
 
     @commands.command(pass_context=True, no_pm=True)
-    async def playanime(self, ctx, *, info: str):
+    async def play(self, ctx, *, info: str):
         ''' Plays an anime opening/ending as requested
-            Format: [title] [type#]
-            title: Title of the anime (i.e. Made in Abyss)
-            type#: Type should be either 'OP' or 'ED' while # is any number. Case insensitive (i.e. op1)
-            If [type#] is not provided, the first search result will be played.
-            Example: ~playanime Made in Abyss OP1
+            @info information that could be used to parse through /r/AnimeThemes
+            Examples: ~playanime Made in Abyss OP1 
+                      ~playanime Underground River
+                      ~playanime Spring 2017 (first posted song of the Spring 2017 season)
         '''
         state = self.get_voice_state(ctx.message.server)
+        # Search for OP / ED 
         songInfo = findAnimeOpening(info)
+        if(songInfo == -1):
+            songInfo = findAnimeEnding(info)
+            if(songInfo == -1):
+                await self.bot.send_message(ctx.message.channel, '<:CorrinThinking:345057666994798592> I couldn\'t find anything for this anime')
 
         # Retrieve the anime title / season aired / and opening version from the reddit link
         song = songInfo[0].url
         metadata = songInfo[0].title
         animeTitle = metadata.split(' (')[0]
+        # Assuming formatted like '"Underground River"'
         songTitle = metadata[metadata.find('"') + 1:metadata.rfind('"')]
+        # If the song title is longer than the thread title, the formatting was probably wrong
+        if(len(songTitle) >= len(metadata)-5):
+            songTitle = '~'
+        # Assuming formatted like '(Winter 2016)'
         seasonAired = metadata[metadata.find('(') + 1:metadata.rfind(')')]
+        if(len(seasonAired) >= len(metadata)-5):
+            seasonAired = '~'
+        # Assuming formatted like '- ED# -'
         version = metadata[metadata.find('- ') + 1:metadata.rfind(' -')]
+        oneVersionOnly = False
+        if(version == ' ED' or version == ' OP'):
+            oneVersionOnly = True
         version = version.replace('OP', 'Opening #').replace('ED', 'Ending #')
-        if(len(version) == 9 or len(version) == 10):
+        # If there is only one opening/ending out for this anime, append a 1 to the version
+        if(oneVersionOnly == True):
             version += '1'
 
         opts = {
@@ -150,11 +166,13 @@ class Music:
             success = await ctx.invoke(self.summon)
             if not success:
                 return
+
         # Comment with the info obtained from the reddit link
         comment = ('<:KonCha:371128264191639563> **Info for this song:** \n```Anime Title: "' + animeTitle + '"')
         comment += ('\nSong Title: "' + songTitle + '"')
         comment += ('\nSeason Aired: ' + seasonAired)
-        comment += ('\nVersion:' + version + '```')
+        comment += ('\nVersion:' + version)
+        comment += ('\n ----------- \n This song was found from the request: "' + info + '"```')
         await self.bot.send_message(ctx.message.channel, comment)
 
         try:
@@ -165,37 +183,6 @@ class Music:
         else:
             player.volume = 0.6
             entry = VoiceEntry(ctx.message, player)
-            await state.songs.put(entry)
-
-    @commands.command(pass_context=True, no_pm=True)
-    async def play(self, ctx, *, song : str):
-        """Plays a song.
-        If there is a song currently in the queue, then it is
-        queued until the next song is done playing.
-        This command automatically searches as well from YouTube.
-        The list of supported sites can be found here:
-        https://rg3.github.io/youtube-dl/supportedsites.html
-        """
-        state = self.get_voice_state(ctx.message.server)
-        opts = {
-            'default_search': 'auto',
-            'quiet': True,
-        }
-
-        if state.voice is None:
-            success = await ctx.invoke(self.summon)
-            if not success:
-                return
-
-        try:
-            player = await state.voice.create_ytdl_player(song, ytdl_options=opts, after=state.toggle_next)
-        except Exception as e:
-            fmt = 'An error occurred while processing this request: ```py\n{}: {}\n```'
-            await self.bot.send_message(ctx.message.channel, fmt.format(type(e).__name__, e))
-        else:
-            player.volume = 0.6
-            entry = VoiceEntry(ctx.message, player)
-            await self.bot.say('Enqueued ' + str(entry))
             await state.songs.put(entry)
 
     @commands.command(pass_context=True, no_pm=True)
