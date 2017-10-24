@@ -2,9 +2,9 @@
 A discord bot
 
 ## Current Commands
--~opgg [League of Legends ign]: Returns a link to the op.gg page of this user
+- ~opgg [League of Legends ign]: Returns a link to the op.gg page of this user
 
--~mal [title]: Returns a link of the MyAnimeList page for this title 
+- ~mal [title]: Returns a link of the MyAnimeList page for this title 
 
 -~op [title]: Finds all related openings for this title from /r/AnimeThemes
 
