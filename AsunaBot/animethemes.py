@@ -24,7 +24,7 @@ def findAnimeOpening(title):
 		else: 
 			if submission.link_flair_text == 'Mirror in Comments' and 'OP' in submission.title:
 				for comment in submission.comments.list():
-					if('https' in comment.body):
+					if('https' in comment.body and 'Mirror:' in comment.body):
 						url = comment.body.split('Mirror: ')[1]
 						submission.url = url
 						openings.append(submission)
@@ -49,7 +49,7 @@ def findAnimeEnding(title):
 		else: 
 			if submission.link_flair_text == 'Mirror in Comments' and 'ED' in submission.title:
 				for comment in submission.comments.list():
-					if('https' in comment.body):
+					if('https' in comment.body and 'Mirror:' in comment.body):
 						url = comment.body.split('Mirror: ')[1]
 						print(url)
 						submission.url = url
