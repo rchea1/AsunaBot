@@ -3,6 +3,8 @@ import discord
 import config
 from animethemes import findAnimeOpening, findAnimeEnding
 from discord.ext import commands
+import glob
+import random
 
 if not discord.opus.is_loaded():
 	discord.opus_load('/mnt/c/Projects/opusfile/libopus.so')
@@ -121,9 +123,9 @@ class Music:
     async def play(self, ctx, *, info: str):
         ''' Plays an anime opening/ending as requested
             @info information that could be used to parse through /r/AnimeThemes
-            Examples: ~playanime Made in Abyss OP1 
-                      ~playanime Underground River
-                      ~playanime Spring 2017 (first posted song of the Spring 2017 season)
+            Examples: ~play Made in Abyss OP1 
+                      ~play Underground River
+                      ~play Spring 2017 (first posted song of the Spring 2017 season)
         '''
         state = self.get_voice_state(ctx.message.server)
         # Search for OP / ED 
@@ -168,7 +170,7 @@ class Music:
                 return
 
         # Comment with the info obtained from the reddit link
-        comment = ('<:KonCha:371128264191639563> **Info for this song:** \n```Anime Title: "' + animeTitle + '"')
+        comment = ('<:bismarck:371436539986837516> **Info for this song:** \n```Anime Title: "' + animeTitle + '"')
         comment += ('\nSong Title: "' + songTitle + '"')
         comment += ('\nSeason Aired: ' + seasonAired)
         comment += ('\nVersion:' + version)
@@ -229,6 +231,39 @@ class Music:
             await state.voice.disconnect()
         except:
             pass
+
+    @commands.command(pass_context=True, no_pm=True)
+    async def radio(self, ctx):
+        songList = []
+        for song in glob.glob(config.MUSIC_PATH):
+            songList.append(song)
+        state = self.get_voice_state(ctx.message.server)
+        
+        opts = {
+            'default_search': 'auto',
+            'quiet': True,
+            'force-ipv4': True,
+        }
+
+        if state.voice is None:
+            success = await ctx.invoke(self.summon)
+            if not success:
+                return
+        # while(len(songList) > 0):
+        try:
+            song = random.choice(songList)
+            songList.remove(song)
+            player = state.voice.create_ffmpeg_player(random.choice(songList))
+        except Exception as e:
+            fmt = 'An error occurred while processing this request: ```py\n{}: {}\n```'
+            await self.bot.send_message(ctx.message.channel, fmt.format(type(e).__name__, e))
+        else:
+            player.volume = 0.6
+            entry = VoiceEntry(ctx.message, player)
+            await state.songs.put(entry)
+                # await asyncio.sleep(620)
+                # player.start()
+
 
     @commands.command(pass_context=True, no_pm=True)
     async def skip(self, ctx):
