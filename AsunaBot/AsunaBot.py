@@ -15,10 +15,10 @@ import xml.etree.cElementTree as ET
 
 from animethemes import findAnimeOpening, findAnimeEnding, randomPost
 
-DESCRIPTION = ''' A discord bot
+DESCRIPTION = ''' A discord bot for people who enjoy anime.
 
-
-Written by: Knotts'''
+Written by: Knotts#0657
+Github Repo: https://github.com/rchea1/AsunaBot'''
 
 startup_extensions = ['Music']
 
@@ -43,9 +43,9 @@ class Main_Commands():
     def __init__(self, bot):
         self.bot = bot
 
-# Posts link to op.gg profile of 'ign'
 @bot.command()
 async def opgg(*, ign: str):
+    ''' Retrieves the op.gg link for this user '''
     pattern = re.compile(r'\s+')
     ign = re.sub(pattern, '+', ign)
     await bot.say('http://na.op.gg/summoner/userName={}'.format(ign))
@@ -86,18 +86,14 @@ async def mal(*, title: str):
 
     await bot.say(url)
 
-# The bot will comment with a mp4 link of an OP from /r/AnimeThemes for a given anime
 @bot.command()
-async def op(*, titlez: str):
-    openings = findAnimeOpening(titlez)
+async def op(*, title: str):
+    ''' # Searches /r/AnimeThemes for openings of an anime'''
+        
+    openings = findAnimeOpening(title)
     # Most likely an invalid anime title
     if(openings == -1): 
         await bot.say('I couldn\'t find any openings for this anime you potato <:PunOko:370486584153473024>')
-        return
-
-    # Prevent the bot from spamming too many links because of bad requests
-    if(len(openings) > 8):
-        await bot.say('This request has too many links')
         return
 
     comment = ''
@@ -109,19 +105,15 @@ async def op(*, titlez: str):
             comment += anime.url + '\n'
 
     comment += '<:TehePelo:370494286707425280> Not what you were looking for? Check the title of the anime and try again! <:TehePelo:370494286707425280>'
+    comment = comment.replace('[OP]', '')
     await bot.say(comment)
 
-# The bot will comment with a mp4 link of an ED from /r/AnimeThemes for a given anime
 @bot.command()
 async def ed(*, title: str):
+    ''' # Searches /r/AnimeThemes for endings of an anime'''
     endings = findAnimeEnding(title)
     if(endings == -1):
         await bot.say('I couldn\'t find any endings for this anime you ape <:PunOko:370486584153473024>')
-        return
-
-    # Prevent the bot from spamming too many links because of bad requests
-    if(len(endings) > 8):
-        await bot.say('This request has too many links')
         return
 
     comment = ''
@@ -132,22 +124,24 @@ async def ed(*, title: str):
             comment += anime.url + '\n'
 
     comment += '<:TehePelo:370494286707425280> Not what you were looking for? Check the title of the anime and try again! <:TehePelo:370494286707425280>'
+    comment = comment.replace('[ED]', '')
     await bot.say(comment)
 
-# Retrieves a random post from /r/anime_irl
 @bot.command()
 async def me_irl():
+    ''' Retrieves a random post from /r/anime_irl '''
     url = randomPost('anime_irl')
     await bot.say(url)
 
-# Retrieves a random post from /r/awwnime
 @bot.command()
 async def cute():
+    ''' Retrieves a random post from /r/awwnime'''
     url = randomPost('awwnime')
     await bot.say(url)
 
 @bot.command()
 async def lewd():
+    ''' Retrieves a random post from /r/ZettaiRyouiki or /r/pantsu'''
     url = randomPost('ZettaiRyouiki+pantsu')
     await bot.say(url)
 
