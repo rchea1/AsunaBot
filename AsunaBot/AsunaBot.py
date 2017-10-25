@@ -67,9 +67,9 @@ async def showme(*, name: str):
     urlArray.pop(index)
     await bot.say(imageUrl)
 
-# Return MAL link for the anime 'title' using myanimelist.net's api
 @bot.command()
 async def mal(*, title: str):
+    ''' Retrieves the MAL link of this anime '''
     url = 'https://myanimelist.net/anime/'
     pattern = re.compile(r'\s+')
     title = re.sub(pattern, '+', title)
@@ -88,7 +88,7 @@ async def mal(*, title: str):
 
 @bot.command()
 async def op(*, title: str):
-    ''' # Searches /r/AnimeThemes for openings of an anime'''
+    ''' Searches /r/AnimeThemes for openings of an anime'''
         
     openings = findAnimeOpening(title)
     # Most likely an invalid anime title
@@ -96,35 +96,34 @@ async def op(*, title: str):
         await bot.say('I couldn\'t find any openings for this anime you potato <:PunOko:370486584153473024>')
         return
 
-    comment = ''
-
-    comment += '<:VoHiYo:370487040380239872> Here are the opening(s) for \"' + titlez + '\" <:VoHiYo:370487040380239872>\n'
+    comment = 'Here are the opening(s) that I found:\n'
+    comment += '-----------\n'
     for anime in openings:
         if('reddit' not in anime.url):
-            comment += anime.title + '\n'
+            comment += '<:PunOko:370486584153473024>' + anime.title + '\n'
             comment += anime.url + '\n'
 
-    comment += '<:TehePelo:370494286707425280> Not what you were looking for? Check the title of the anime and try again! <:TehePelo:370494286707425280>'
     comment = comment.replace('[OP]', '')
+    comment += '-----------\n ```Results obtained from search results of "' + title + '"```'
     await bot.say(comment)
 
 @bot.command()
 async def ed(*, title: str):
-    ''' # Searches /r/AnimeThemes for endings of an anime'''
+    ''' Searches /r/AnimeThemes for endings of an anime'''
     endings = findAnimeEnding(title)
     if(endings == -1):
         await bot.say('I couldn\'t find any endings for this anime you ape <:PunOko:370486584153473024>')
         return
 
-    comment = ''
-    comment += '<:VoHiYo:370487040380239872> Here are the ending(s) for \"' + title + '\" <:VoHiYo:370487040380239872>\n'
+    comment = 'Here are the ending(s) that I found:\n'
+    comment += '-----------\n'
     for anime in endings:
         if('reddit' not in anime.url):
-            comment += anime.title + '\n'
+            comment += '<:bismarck:371436539986837516>' + anime.title + '\n'
             comment += anime.url + '\n'
 
-    comment += '<:TehePelo:370494286707425280> Not what you were looking for? Check the title of the anime and try again! <:TehePelo:370494286707425280>'
     comment = comment.replace('[ED]', '')
+    comment += '-----------\n ```Results obtained from search results of "' + title + '"```'
     await bot.say(comment)
 
 @bot.command()
