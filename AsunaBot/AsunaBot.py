@@ -100,13 +100,16 @@ async def op(*, titlez: str):
         await bot.say('This request has too many links')
         return
 
-    await bot.say('<:VoHiYo:370487040380239872> Here are the opening(s) for \"' + titlez + '\" <:VoHiYo:370487040380239872>')
+    comment = ''
+
+    comment += '<:VoHiYo:370487040380239872> Here are the opening(s) for \"' + titlez + '\" <:VoHiYo:370487040380239872>\n'
     for anime in openings:
         if('reddit' not in anime.url):
-            await bot.say(anime.title)
-            await bot.say(anime.url)
+            comment += anime.title + '\n'
+            comment += anime.url + '\n'
 
-    await bot.say('<:TehePelo:370494286707425280> Not what you were looking for? Check the title of the anime and try again! <:TehePelo:370494286707425280>')
+    comment += '<:TehePelo:370494286707425280> Not what you were looking for? Check the title of the anime and try again! <:TehePelo:370494286707425280>'
+    await bot.say(comment)
 
 # The bot will comment with a mp4 link of an ED from /r/AnimeThemes for a given anime
 @bot.command()
@@ -121,13 +124,15 @@ async def ed(*, title: str):
         await bot.say('This request has too many links')
         return
 
-    await bot.say('<:VoHiYo:370487040380239872> Here are the ending(s) for \"' + title + '\" <:VoHiYo:370487040380239872>')
+    comment = ''
+    comment += '<:VoHiYo:370487040380239872> Here are the ending(s) for \"' + title + '\" <:VoHiYo:370487040380239872>\n'
     for anime in endings:
         if('reddit' not in anime.url):
-            await bot.say(anime.title)
-            await bot.say(anime.url)
+            comment += anime.title + '\n'
+            comment += anime.url + '\n'
 
-    await bot.say('<:TehePelo:370494286707425280> Not what you were looking for? Check the title of the anime and try again! <:TehePelo:370494286707425280>')
+    comment += '<:TehePelo:370494286707425280> Not what you were looking for? Check the title of the anime and try again! <:TehePelo:370494286707425280>'
+    await bot.say(comment)
 
 # Retrieves a random post from /r/anime_irl
 @bot.command()
