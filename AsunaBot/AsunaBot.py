@@ -4,6 +4,8 @@ from discord.ext import commands
 from bs4 import BeautifulSoup
 from random import randrange
 
+import json
+import urllib
 import random
 import requests
 import logging
@@ -12,6 +14,7 @@ import bs4
 import config
 import re
 import xml.etree.cElementTree as ET
+import os
 
 from animethemes import findAnimeOpening, findAnimeEnding, randomPost
 
@@ -20,13 +23,13 @@ DESCRIPTION = ''' A discord bot for people who enjoy anime.
 Written by: Knotts#0657
 Github Repo: https://github.com/rchea1/AsunaBot'''
 
-startup_extensions = ['Music']
+startup_extensions = ['Music', 'ImageSearch']
 
 # logging.basicConfig(level=logging.INFO)
 
 print('Logging onto bot...')
 bot = commands.Bot(command_prefix='~', description=DESCRIPTION)
-bot.load_extension('Music')
+# bot.load_extension('Music', 'ImageSearch')
 client = discord.Client()
 print('Setup complete')
 print('-------------------------')
@@ -50,23 +53,6 @@ async def opgg(*, ign: str):
     ign = re.sub(pattern, '+', ign)
     await bot.say('http://na.op.gg/summoner/userName={}'.format(ign))
 
-# Posts a random image of 'name' from zerochan.net
-@bot.command()
-async def showme(*, name: str):
-    urlArray = []
-    pattern = re.compile(r'\s+')
-    name = re.sub(pattern, '+', name)
-    url = 'https://www.zerochan.net/{}'.format(name)
-    r = requests.get(url)
-    soup = BeautifulSoup(r.content, 'html.parser')
-    for link in soup.find_all('a'):
-        if 'static' in str(link.get('href')):
-            urlArray.append(str(link.get('href')))
-    index = randrange(0, len(urlArray))
-    imageUrl = urlArray[index]
-    urlArray.pop(index)
-    await bot.say(imageUrl)
-
 @bot.command()
 async def mal(*, title: str):
     ''' Retrieves the MAL link of this anime '''
@@ -89,7 +75,9 @@ async def mal(*, title: str):
 @bot.command()
 async def op(*, title: str):
     ''' Searches /r/AnimeThemes for openings of an anime'''
-        
+    if(len(title) < 1):
+        await bot.say('You need to enter arguments for this command')
+        return
     openings = findAnimeOpening(title)
     # Most likely an invalid anime title
     if(openings == -1): 
@@ -104,8 +92,11 @@ async def op(*, title: str):
             comment += anime.url + '\n'
 
     comment = comment.replace('[OP]', '')
-    comment += '-----------\n ```Results obtained from search results of "' + title + '"```'
-    await bot.say(comment)
+    comment += '-----------\n ```Obtained from search results of "' + title + '"```'
+    try: 
+        await bot.say(comment)
+    except Exception as e:
+        await bot.say('The request returned too many links. Please try again with more specific parameters.')                   
 
 @bot.command()
 async def ed(*, title: str):
@@ -123,7 +114,7 @@ async def ed(*, title: str):
             comment += anime.url + '\n'
 
     comment = comment.replace('[ED]', '')
-    comment += '-----------\n ```Results obtained from search results of "' + title + '"```'
+    comment += '-----------\n ```Obtained from search results of "' + title + '"```'
     await bot.say(comment)
 
 @bot.command()
