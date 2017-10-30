@@ -10,7 +10,7 @@ A discord bot
 
 - ~ed [title]: Finds all related endings for this title from /r/AnimeThemes
 
-- ~showme[character name]: Returns a random image of this character from https://zerochan.net
+- ~showme[character name]: Returns a random image of this character from https://konachan.com
 
 - ~me_irl: Posts a random image from /r/anime_irl
 
