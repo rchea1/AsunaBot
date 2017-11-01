@@ -19,47 +19,39 @@ class ImageSearch:
 
 	@commands.command(pass_context = True, no_pm = True)
 	async def showme(self, ctx, *, name: str):
-		''' Retrieves a random image from https://konachan.com '''
+		''' Retrieves a random image from https://anime-pictures.net '''
 		imageArray = []
 		name = name.replace(' ', '_')
-		
-		konachan = requests.Session()
-		request = konachan.get('https://konachan.com/post.xml?tags={}'.format(name))
-		konachan.close()
-		request = ET.fromstring(request.content)
 
-		# konachan lists 21 images per page
-		pageNumbers = int(request.attrib['count'])
-		if pageNumbers == 0:
-			await self.bot.send_message(ctx.message.channel, 'No images were found for the tag "{}"'.format(name))
+		url = 'https://anime-pictures.net/pictures/view_posts/0?type=json&search_tag={}&lang=en'.format(name)
+		anime = requests.get(url).json()
+
+		if anime['posts_count'] == 0:
+			await self.bot.send_message(ctx.message.channel, 'No results for "{}"'.format(name))
 			return
-		if pageNumbers < 21: 
-			pageNumbers = 1
-		else:
-			pageNumbers = int(ceil(pageNumbers / 21))
 
-		# Getting a random page number if there are more than 1 page of images
-		if pageNumbers > 0:
+		pageNumbers = int(anime['max_pages'])
+
+		randomPage = 0
+
+		if(pageNumbers > 0):
 			randomPage = random.randint(0, pageNumbers)
-			if randomPage == 0: 
-				randomPage = 1
-		else:
-			randomPage = pageNumbers
-
+		
 		print('Getting random image of "{}" from page {}'.format(name, randomPage))
-		url = 'https://konachan.com/post.json?page={}&tags={}&limit=21'.format(randomPage, name)    
+		url = 'https://anime-pictures.net/pictures/view_posts/{}?type=json&search_tag={}&lang=en'.format(randomPage, name)    
 		data = requests.get(url).json()
-	
-		for image in data:
-			info = {'image_link': 'https:' + str(image['jpeg_url']),
-					'id': image['id']}
-			imageArray.append(info)
 
-		image = random.choice(imageArray)
+		random_image = random.randint(0, int(data['response_posts_count'])-1)
+
+		image_id = str(data['posts'][random_image]['id'])
+		extension = str(data['posts'][random_image]['ext'])
+		image_link = str(data['posts'][random_image]['big_preview'])
+		image_link = image_link.replace('.webp', '')
+
 		# Downloading the image for myself and uploading the file through discord
-		filepath = os.path.join(config.IMAGE_PATH, str(image['id']) + '.jpg')
-		urllib.request.urlretrieve(image['image_link'], filepath)
-		await self.bot.send_file(ctx.message.channel, config.IMAGE_PATH + str(image['id']) + '.jpg')
+		filepath = os.path.join(config.IMAGE_PATH, image_id + extension)
+		urllib.request.urlretrieve(image_link, filepath)
+		await self.bot.send_file(ctx.message.channel, config.IMAGE_PATH + image_id + extension)
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or('~'), description='Image search')
 bot.add_cog(ImageSearch(bot))
