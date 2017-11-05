@@ -62,7 +62,12 @@ async def mal(*, title: str):
     mal = requests.Session()
     request = mal.get('https://myanimelist.net/api/anime/search.xml?q={}'.format(title), auth=(config.username, config.password))
     mal.close()
-    request = ET.fromstring(convertXML(request.text))
+    
+    try:
+    	request = ET.fromstring(convertXML(request.text))
+    except Exception as e:
+    	await bot.say('No results for "{}"'.format(title.replace('+', ' ')))
+    	return
 
     anime = request.find('./entry')
     title = anime.find('title').text
